@@ -14,7 +14,8 @@ Server = os.environ["Server"]
 
 serverdict = {"QC3Primary":('192.168.30.74', 22), "QC3Secondary":('192.168.30.80', 22), "QC9Secondary":('10.3.1.183', 22), 
               "QC9Primary":('10.3.1.177', 22), "QC2Primary":('10.3.2.86', 22), "QC2Secondary":('10.3.2.90', 22),
-               "QC7Primary":('10.3.1.66', 22), "QC7Secondary":('10.3.1.70', 22)}
+               "QC7Primary":('10.3.1.66', 22), "QC7Secondary":('10.3.1.70', 22), "QC1Primary":('10.3.2.167', 22), "QC1Secondary":('10.3.2.207', 22),
+               "QC5Primary":('10.3.8.27', 22), "QC5Secondary":('NA', 22), "QC11Primary":('10.3.1.117', 22), "QC11Secondary":('10.3.1.122', 22)}
 server = serverdict[Server]
 GW = "10.0.24.64"
 la = ("10.0.24.64", 22)

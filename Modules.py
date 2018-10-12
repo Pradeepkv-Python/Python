@@ -8,25 +8,36 @@ import os
 import subprocess
 
 from appium import webdriver
-#from selenium import webdriver
+
 from selenium.common.exceptions import NoSuchElementException
 from appium.webdriver.common.touch_action import TouchAction
-#from appium.webdriver import mobilecommand
+
 
 from time import sleep
-import Elements as el
+import ElementsText as el
 import adb
 
 import logging
-#from selenium.webdriver.support.ui import WebDriverWait
-#from selenium.webdriver.support import expected_conditions
-
+from xml.etree import ElementTree as ET
+try:
+    os.remove("F:\Automation_Logs\logs.txt")
+except FileNotFoundError:
+    pass
 logger = logging.getLogger(__name__)
 hdlr = logging.FileHandler("F:\Automation_Logs\logs.txt")
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 logger.setLevel(logging.DEBUG)
+print("====== New Session ========")
+
+
+def ele_from_xml(self, ele):
+    rt = ET.parse(r"F:\AutomationData\Elements_att.xml")
+    root = rt.getroot()
+    print(root.tag)
+    for el in root.findall(ele):
+        return el.text
 
 class ModulesforPTT():
     '''
@@ -35,13 +46,12 @@ class ModulesforPTT():
     
     Devicelist = {}
     ActivationStatus = [el.Status["Contacting"], el.Status["UseWifi"], el.Status["Reconnecting"], el.Status["Information"], el.Status["Syncstarted"], el.lcms["importantmessage"]]
-    InAppStatus = [el.Status["Information"], el.Status["Syncstarted"], el.Call["MissedCallAlert"], el.Status["Pleasewait"], el.Status["Reconnecting"], el.Call["Notnow"], el.CopyLog["Menu"], el.CopyLog["Back"], el.Call["CallEnd"], el.lcms["importantmessage"]]
-    ptxstatus = [el.Status["Contacting"], el.Status["Information"], el.Status["Syncstarted"], el.Status["Pleasewait"], el.Call["MissedCallAlert"], el.Call["CallEnd"], el.lcms["importantmessage"]]
+    InAppStatus = [el.Status["Information"], el.Status["Syncstarted"], el.Call["MissedCallAlert"], el.Status["Pleasewait"], el.Status["Reconnecting"], el.Call["Notnow"], el.CopyLog["Menu"], el.CopyLog["Back"], el.Call["CallEnd"], el.lcms["importantmessage"], el.Status["Confirm"], el.Status["EmergencyAlert"]]
+    ptxstatus = [el.Status["Contacting"], el.Status["Information"], el.Status["Syncstarted"], el.Status["Pleasewait"], el.Call["MissedCallAlert"], el.Call["CallEnd"], el.lcms["importantmessage"], el.Status["Confirm"]]
     def __init__(self, IP):
         '''
         Constructor
         '''
-        #self.IP = el.input["remoteIP"]
         self.ip = IP
         self.android_command = adb.AdbCommands(self.ip)
     
@@ -71,12 +81,12 @@ class ModulesforPTT():
         #desired_cap['platformVersion'] = int(Version)
         desired_cap['udid'] = deviceserialNumber
         desired_cap['autoLaunch'] = 'false'        
-        desired_cap['newCommandTimeout'] = 20
+        desired_cap['newCommandTimeout'] = 300
         #desired_cap['skipUnlock'] = 'true'
         #desired_cap['app'] = 'F:\Software-WB\Android_08_003_00_26E-CDE_08_003_00_00_25P-UI_08_03_00_10C-1-att.apk'
         desired_cap['appPackage'] = package
         desired_cap['appActivity'] = '.StartupActivity'
-        #desired_cap['automationName'] = 'UiAutomator2'
+        desired_cap['automationName'] = 'Appium'
         desired_cap['noReset'] = 'true'
         desired_cap['unicodeKeyboard'] = 'true'
         desired_cap['resetKeyboard'] = 'true'
@@ -86,7 +96,6 @@ class ModulesforPTT():
         print(http)
         try:
             driver = webdriver.Remote(http, desired_cap)
-
         except Exception as err:
             print("**** Driver creation failed!!! ****** \n Please start Appium Server and Re-run the script \n")
             logger.error("** Driver creation failed!!! ****** \n Please start Appium Server and Re-run the script \n")
@@ -98,46 +107,39 @@ class ModulesforPTT():
         print ("PTT Application Launched Successfully!!! \n")
         logger.info("PTT Application Launched Successfully!!! %s \n", driver)
         
+        
         return driver
     def generate_seq(self):
-        for i in range(1, 10):
+        for i in range(4723, 4730):
             yield i
     def adb_Android_device_finder(self):
         adb = "adb -H " + self.ip + " devices"
-        #print(adb)
         devicecount = 0
         var = subprocess.getoutput(adb)
-        #print(var)
-        #var = str(var)
-        #print(var.splitlines())
         var2 = var.splitlines()
         a = self.generate_seq()
         for i in range(len(var2)):
             if var2[i] not in ['List of devices attached', '* daemon started successfully *', '* daemon not running. starting it now at tcp:5037 *']:
-                #if j in range(3):
                 ser = str(var2[i])
-                #print(ser)
-                c = ser.find("\td") or ser.find("\to")
+                c = ser.find("\to")
+                d = ser.find("\td")
                 
-                #for key, value in enumerate():
+                if c == -1:
+                    c=d
                     
                 self.Devicelist[next(a)] = ser[0:c]
                 devicecount += 1
         logger.info("\n====== New Session ======")
         print("Connected Device Count : {}\nDevices Serial numbers : {}\n".format(devicecount, self.Devicelist))
         logger.info("Connected Device Count : %s \nDevices Serial numbers : %s\n", devicecount, self.Devicelist)
-    '''def driver_creation(self):
-        for i in self.Devicelist:
-            driver + str(i)'''
+
     def adb_uninstall_builds(self, build = el.Packages):
         for i, k in build.items():
             print("please wait uninstalling ", k)
-            #logger.info("please wait uninstalling ", k)
             adb = "adb uninstall " + k 
             os.system(adb)
 
     def adb_install_build(self, path=el.input["Path"]):
-        print("Intsalling the build Please wait....\n given build path : ", path)
         logger.info("Intsalling the build Please wait....\n given build path : ", path)
         adb = "adb install " + path
         os.system(adb)    
@@ -190,11 +192,9 @@ class ModulesforPTT():
             print("switch_apptoBGandFG(): Error occured \n")
                 
     def deviceTime(self, driver):
-        driver.tdevices()
-        
+        driver.tdevices()        
         date = subprocess.getoutput("adb shell date +%m/%d%H:%M:%S")
         devtime = date[0:5] + ' '+date[5:13]
-        #print("dev time : ", devtime)
         return devtime
     def ptxdeviceTime(self):
 
@@ -208,15 +208,18 @@ class ModulesforPTT():
                 print ("Allowing Permissions for Android M onwards")
                 for i in range(1,7):
                     driver.find_element_by_id("com.android.packageinstaller:id/permission_allow_button").click()
+                sleep(10)   
             except Exception:
                 pass
             try:
                 sleep(3)
-                driver.find_element_by_id("android:id/button1").click()
-                print("Allowing battery permission")
+                f = driver.find_element_by_id("android:id/button1").is_displayed()
+                if f == True:
+                    driver.find_element_by_id("android:id/button1").click()
+                    print("Allowing battery permission")
             except Exception:
                 pass
-        for i in range(8):
+        for i in range(4):
             try:
                 sleep(5)
                 cond = driver.find_element_by_xpath(el.Activation['Accept']).is_displayed()
@@ -231,14 +234,23 @@ class ModulesforPTT():
                 print ("Accept button not found")
         #sleep(5)
         self.status_check(driver, self.ActivationStatus)
-        try:
-            driver.find_element_by_xpath(el.Activation["Yes"]).click()
-        except Exception:
-            pass
+        
+        
+        for i in range(3):
+            try:
+                flag = driver.find_element_by_xpath(el.Activation["Yes"]).is_displayed()
+                if flag == True:
+                    driver.find_element_by_xpath(el.Activation["Yes"]).click()
+                
+            except Exception:
+                sleep(5)
+                continue
+                pass
         self.status_check(driver, self.ActivationStatus)
         try:
             flag = driver.find_element_by_xpath(el.Activation["EnterCode"]).is_displayed()
             if flag == True:
+                driver.find_element_by_xpath(el.Activation["EnterCode"]).click()
                 Code = input("<inof> please enter Activation Code: ")
                 try:
                     activation_key = driver.find_element_by_xpath(el.Activation["EditText1"])
@@ -264,9 +276,11 @@ class ModulesforPTT():
         try:        
             sleep(2)
             driver.find_element_by_xpath(el.Activation["SkipTutorial"]).click()
-            print("activation():Activation success")
+            print("<Success> Activation success")
+            return True
         except Exception:
-            print ("<info> Activation Failed!!!!")
+            print ("<Error> Activation Failed!!!!")
+            return False
             
 
     
@@ -289,16 +303,16 @@ class ModulesforPTT():
             except Exception:
                 #print("<error> Failed to do long press on element...")
                 print("<info> Element not identified in longpress() function and will try one more..")
-                self.swipe(driver)
-                self.status_check(driver, self.InAppStatus)
+                #self.swipe(driver)
+                #self.status_check(driver, self.InAppStatus)
                 continue
         
 
-    def destpath(self, serialnumber, Opsname = "NoSpecificOps"):
+    def destpath(self, serialnumber, Opsname = "Keerthi_DT"):
         '''To select local/system path to copy logs with devitime attached'''
         devtime=self.android_command.adb_ops_timestamp(serialnumber)
         devtime=devtime[0:2]+devtime[3:]
-        dirlist = ["E:\Automation_folder", "D:\Automation_folder", "F:\Automation_folder"]
+        '''dirlist = ["E:\Automation_folder", "D:\Automation_folder", "F:\Automation_folder"]
         for i in range(3):
             try:
                 var = dirlist[i]
@@ -308,7 +322,9 @@ class ModulesforPTT():
                 break
             except FileNotFoundError:
                 print("<info> {0} drive not present and trying to create directory in available drive".format(var))
-                continue
+                continue'''
+        
+        var = "F:\Automation_folder"
         dest_path=var + "\PTT_{0}_{1}".format(devtime, Opsname)
         print("<Log Path> : ", dest_path)
         return dest_path
@@ -325,8 +341,8 @@ class ModulesforPTT():
         sleep (2)
         try:
             if self.status_check(driver, self.InAppStatus) == False:
-                self.android_command.adb_switch_apptoBG(self, serialnumber)
-                self.android_command.adb_switch_apptoFG(self, serialnumber)
+                self.android_command.adb_switch_apptoBG(serialnumber)
+                self.android_command.adb_switch_apptoFG(serialnumber)
             driver.find_element_by_xpath(el.CopyLog["Menu"]).click()
             sleep(3)
            
@@ -336,7 +352,7 @@ class ModulesforPTT():
                 driver.find_element_by_id("Manual dial").click()
            
             keysend = driver.find_element_by_xpath(el.CopyLog["EneterNumber"])
-            print(el.Secretcode[carrier])
+            #print(el.Secretcode[carrier])
             keysend.send_keys(el.Secretcode[carrier])
             
             sleep(1)
@@ -357,10 +373,8 @@ class ModulesforPTT():
             driver.find_element_by_xpath(el.CopyLog["Yes"]).click()
             try:
                 sleep(5)
-                #print("allow")
                 driver.find_element_by_id(el.CopyLog["allow"]).click()
             except Exception:
-                #print("allow excep")
                 pass
             sleep(5)
             self.backbutton(driver, 2)
@@ -474,11 +488,11 @@ class ModulesforPTT():
         time = time + ', '
         #print(time)
         param = msgtype
-        sleep(5)
+        sleep(2)
         try:
             for i in PTXStatus[:]:
                 status = i
-                sleep(5)
+                sleep(2)
                 finalele = First+time+param+status
                 #finaleletext = "//android.view.View[@text='"+ finalele + "']"
                 finalelecontent = "//android.view.View[@content-desc='"+ finalele + "']"
@@ -493,7 +507,7 @@ class ModulesforPTT():
                     print ("         PTX Message progress Status : {0} and Device time is {1}".format(i.upper(), time[:-2]))
                     return i
                     break
-            sleep(5)
+            sleep(2)
         except NoSuchElementException:
             print("Checking status : {0} = {1}".format(i, flag))
     
@@ -592,14 +606,14 @@ class ModulesforPTT():
                 driver.find_element_by_xpath(el.Cat["delete"]).click()
             except Exception:
                 pass
-            Search = driver.find_element_by_xpath(el.Activation["EditText"])
+            Search = driver.find_element_by_xpath(el.Activation["grpsearch"])
             sleep(2)
             Search.clear()
             Search.send_keys(grp_name)
             sleep(3)
             First = "Group Name "
             Second = grp_name
-            Last = ", Group Avator Default Avatar, , , , , , , "
+            Last = ", Group Avator Default Avatar, , , , , , , , "
 
             if(self.isExistContactorGroup(driver) != False):
                 
@@ -787,7 +801,7 @@ class ModulesforPTT():
                 driver.find_element_by_xpath(el.PTX["VOICEMESSAGE"]).click()
             except Exception:
                 driver.find_element_by_xpath(el.PTX["Sendvoicemessage"]).click()
-            self.longPress(driver, el.PTX["record"])
+            self.longPress(driver, el.PTX["record"], duration=50000)
             sleep(2)
             driver.find_element_by_xpath(el.PTX["recordOK"]).click()
             sleep(0.3)
@@ -801,12 +815,16 @@ class ModulesforPTT():
     def ptx_sendText(self, driver):
         try:
             sleep(3)
-            driver.find_element_by_xpath(el.PTX["Sendtext"]).click()
+            try:
+                driver.find_element_by_xpath(el.PTX["Sendtext"]).click()
+            except Exception:
+                pass
             sleep(2)
             driver.find_element_by_xpath(el.PTX["EnterText"]).click()
-            string = '''Welcome to Kodiak Networks.'''
+            string = '''Welcome to Kodiak Networks.A regular expression in a programming language is a special text string used for describing a search pattern. It is extremely useful for extracting '''
             text = driver.find_element_by_xpath(el.PTX["EnterText"])
             text.send_keys(string)
+            sleep(3)
             driver.find_element_by_xpath(el.PTX["SendPTXMessage"]).click()
             print("<<PTX>> Text sent successfully")
             return True
@@ -932,6 +950,7 @@ class ModulesforPTT():
     def element_find(self, driver, ele):
         try:
             found = driver.find_element_by_xpath(ele).is_displayed()
+            #print("ele find", found)
             return found
         except Exception as err:
             pass
@@ -956,7 +975,7 @@ class ModulesforPTT():
         #print("home", home)
         home = False
         if home == True:
-            print("in first")
+            #print("in first")
             print("<Status> Client in Home Screen")
             return True
         elif home == False:
@@ -967,7 +986,7 @@ class ModulesforPTT():
                     res = self.element_find(driver, statuslist[i])
                     if res == True:
                         Status = statuslist[i]
-                        print(Status)
+                        #print(Status)
                         isexist = 1
                         break
                     else:
@@ -984,17 +1003,32 @@ class ModulesforPTT():
                         sleep(2)
                     except Exception as err:
                         print("<error> Could not able to dismiss LCMS pop up.\n", err)
+                if Status in [el.Status["Confirm"]]:
+                    print("<Status> Got Discard pop up.. ")
+                    try:
+                        driver.find_element_by_xpath(el.Cat["Yes"]).click()
+                        sleep(1)
+                    except Exception as err:
+                        print("<error> Could not able to dismiss Discard pop up.\n", err)
+                if Status in [el.Status["EmergencyAlert"]]:
+                    print("<Status> Got Emergency Alert pop up.. ")
+                    try:
+                        driver.find_element_by_xpath(el.lcms["Dismiss"]).click()
+                        sleep(2)
+                    except Exception as err:
+                        print("<error> Could not able to dismiss LCMS pop up.\n", err)
+                
                 if Status in [el.Status["Contacting"], el.Status["Reconnecting"]]:
                     print("<Status> Client in Contacting server/ Reconnecting will sleep 10sec")
                     sleep(5)
                     isexist = 1
                     
-                elif Status == [el.Status["UseWifi"]]:
+                elif Status in [el.Status["UseWifi"]]:
                     try:
                         print("<Status> Got confirm pop-up")
-                        driver.find_element_by_xpath(el.Status["UseWifi"])
+                        driver.find_element_by_xpath(el.Status["UseWifi"]).click()
                         sleep(3)
-                        driver.find_element_by_xpath(el.Activation["OK"])
+                        driver.find_element_by_xpath(el.Activation["OK"]).click()
                         isexist = 1
                         return True
                     except NoSuchElementException:
@@ -1124,13 +1158,12 @@ class ModulesforPTT():
             print("add_contact(): error occured \n ", err)
             self.status_check(driver, self.InAppStatus)
             
-    def add_group(self, driver, groupcount=50):
+    def add_group(self, driver, groupcount=1):
         
-        print("Adding Groups please wait...")
+        print("Given group count to add is %d ...please wait", groupcount)
         grpname = list(range(1, groupcount+1))
         max = 9998881000 + groupcount+1
         num = list(range(9998881000, max))
-        #PresenceStatus = ["Available", "Offline", "Do Not Disturb"]
         
         for i in range(len(grpname)):
             try:
@@ -1168,7 +1201,7 @@ class ModulesforPTT():
                 print("add_group(): error occured ")
                 self.status_check(driver, self.InAppStatus)
                 continue
-    def delete_grp(self, driver, groupcount=50):
+    def delete_grp(self, driver, groupcount=1):
         
         print("Deleting Groups please wait...")
         grpname = list(range(1, groupcount+1))
@@ -1493,6 +1526,7 @@ class ModulesforPTT():
         #subprocess.getoutput('adb shell am start -a android.intent.action.MAIN -n com.android.settings/.wifi.WifiSettings')
 
         net = self.check_network(driver)
+        #print("net : ",net)
         if net != [2, 6]:
             try:
                 for i in range(10):
@@ -1528,9 +1562,12 @@ class ModulesforPTT():
             logger.info("<info> Mobile already connected to WIFI")
             
     def check_network(self, driver):
-        net = driver.network_connection
-        return net
- 
+        try:
+            net = driver.network_connection
+            #print("in check : ",net)
+            return net
+        except Exception as e:
+            print("Error in getting network connection \n", e)
     def switch_data(self, driver, serialnumber):
         command = 'shell am start -n "com.android.settings/.Settings\"\$\"DataUsageSummaryActivity"'
         self.android_command.adb_exec_command(command, serialnumber)
@@ -1588,7 +1625,7 @@ class ModulesforPTT():
         
         try:
             sleep(3)
-            if(self.longPress(driver, el.Call["Call"], 10000)):
+            if(self.longPress(driver, el.Call["Call"], 60000)):
                 print("<info> Floor is Released now")
             
             else:
@@ -1656,15 +1693,38 @@ class ModulesforPTT():
                 self.swipe(driver)
                 print("swiped")
                 continue
-
-    '''def writetoDB(self, SN=1, Date, TC, Result):            
-        conn = sqlite3.connect("F:\\Logs\\SWO.db")
-        c = conn.cursor()
+            
+    def merge_logs(self, fp, file):
+        fp = el.Log["folderpath"]
+        merge = fp+'\merge.txt'
+        Analysis = fp+'\Analysis.txt'
+        new = '\poc_app_logs.txt'
+        old = '\poc_app_logs_old.txt'
+        print("<info> Merging logs started from ", file)
+        sleep(2)
         try:
-            c.execute("CREATE TABLE stocks(SN, Date, TC_name, Result)")
-        except Exception:
-            pass
-        q = "INSERT INTO stocks VALUES('" + SN + "', '" +Date + "', '" + TC + "', '" + Result + "')"
-        c.execute(q)
-        conn.commit()
-        conn.close()'''
+            Mfile = open(merge, 'a+')
+            Rfile = open(fp + file, 'r')
+            size = os.path.getsize(merge)
+            lines = Rfile.readlines()
+            flag = True
+            if size == 0:
+                flag = False
+            for line in lines:
+                if flag or self.start_time in line:
+                    Mfile.write(line)
+                    flag = True 
+                    if self.end_time in line:
+                        flag = False
+                        size = os.path.getsize(merge)
+                        print("<Info> finished merging logs and size of is {0} \n".format(size))
+                        return "stop"  
+                    
+        except FileNotFoundError:
+            print("<Error> File path does not exist")
+            exit()
+        finally:
+            Mfile.close()
+            Rfile.close()    
+
+            

@@ -18,11 +18,12 @@ appium["unlock"] = 'io.appium.unlock'
 appium["ime"] = 'io.appium.android.ime'
 
 input = {}
-input["MDN"] = "Pradeep_012"
-input["grp"] = "Pradee"
+input["MDN"] = "WB_Auto_Android"
+input["grp"] = "Pradeep"
 input["package"] = "att"
 input["Path"] = "D:\Software-WB\programs\Android_08_003_00_34G-CDE_08_003_00_00_25Y-UI_08_03_00_11D-1-verizon.apk"
-input["remoteIP"] = "10.0.9.126"
+input["remoteIP"] = "127.0.0.1"
+input["bearer"] = "3g" #wifi, 3g, both
 
 NWsim = {}
 NWsim["UPtime"] = 5
@@ -33,17 +34,18 @@ NWsim["count"] = 500
 
 Activation = {}
 
-Activation["Accept"] = "/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.webkit.WebView/android.webkit.WebView/android.view.View/android.view.View/android.view.View[1]/android.view.View/android.view.View/android.view.View/android.view.View[2]/android.view.View/android.view.View[1]/android.view.View" #"//android.widget.Button[@text='Accept']"
+Activation["Accept"] = "//android.widget.Button[@text='Accept']"
 Activation["Allow"] = "com.android.packageinstaller:id/permission_allow_button"
 Activation['BatteryYes'] = "//android.widget.Button[@text='Yes']"
-Activation["Yes"]="//android.widget.Button[@text='Yes']"
-Activation["EnterCode"]="//android.view.View[@text='Enter code']"
+Activation["Yes"]="//android.view.View[@text='Yes']"
+Activation["EnterCode"]="//android.view.View[@text='Enter Code']"
 Activation["EditText1"] = "//android.widget.EditText"
 Activation["EditText"]="//android.widget.EditText[@text='Search']"
 Activation["OK"]="//android.view.View[@text='OK']"
-Activation["SkipTutorial"]="//android.view.View[@text='Skip tutorial']"
+Activation["SkipTutorial"]="//android.view.View[@text='Skip Tutorial']"
 Activation["Error"]="//android.view.View[@text='Error']"
 Activation["Exit"]="//android.view.View[@text='Exit']"
+Activation["grpsearch"]="//android.view.View[contains(@resource-id,'ext-uxsearchfield')]"
 
 lcms = {}
 lcms["importantmessage"] = "//android.view.View[@text='Important message']" 
@@ -53,15 +55,15 @@ lcms["Dismiss"] = "//android.widget.Button[@text='Dismiss']"
 CopyLog = {}
 
 CopyLog["Menu"]="//android.widget.Button[@text='Menu']"
-CopyLog["ManualDial"]="//android.view.View[@text='Manual dial' or @text='Manual Dial' and @enabled = 'true' and @index='1']"
+CopyLog["ManualDial"]="//android.widget.Button[@text='Manual Dial']"
 CopyLog["PTTCall"]="//android.widget.Button[@text='PTT Call']"
-CopyLog["EneterNumber"]="//android.widget.EditText[@text='Enter number']" # or @text='Enter Number'
+CopyLog["EneterNumber"]="//*[@class='android.widget.EditText']"#[@text='Enter number']" # or @text='Enter Number'
 CopyLog["CopyPTTfiles"]="//android.view.View[@text='Copy Files to Shared Memory']"
 CopyLog["allow"]="com.android.packageinstaller:id/permission_allow_button"
 CopyLog["Yes"]="//android.view.View[@text='Yes']"
 CopyLog["Back"]="//android.widget.Button[@text='Back']"
 CopyLog["Details"]="//android.widget.Button[@text='Details']"
-CopyLog["Settings"]="//android.view.View[@text='Settings' and @index='1']"
+CopyLog["Settings"]="//android.widget.Button[@text='Settings' and @index='1']"
 
 Presence = {}
 Presence["Available"]="//android.widget.EditText[@text='Available']"#"//android.view.View[@text='My presence, Available']"
@@ -74,7 +76,7 @@ Tab = {}
 Tab["History"]="//android.view.View[@text='History']"
 Tab["Favorite"]="//android.view.View[@text='Favorite']"
 Tab["Contact"]="//android.view.View[@text='Contact']"
-Tab["Group"]="//android.view.View[@text='Group']"
+Tab["Group"]="//android.view.View[contain(@text,'groups ')]"
 Tab["MapTab"]="//android.view.View[@text='Location']"
 
 Cat = {}
@@ -101,16 +103,17 @@ Cat["OK"]="//android.view.View[@text='OK']"
 
 Status = {}
 
-Status["Confirm"] = "//android.widget.Button[@text='Confirm']"
+Status["Confirm"] = "//android.view.View[@text='Confirm']"
 Status["Desc1"] = "//android.widget.Button[@text='Connection to server is not available.']"
-Status["UseWifi"] = "//android.view.View[@text='Use Wi-Fi']"
+Status["UseWifi"] = "//android.view.View[contains(@text,'Use wifi. . CheckBox ')]"
 Status["Reconnecting"] = "//android.view.View[@text='Reconnecting, please wait...']"
-Status["Contacting"] = "//android.view.View[@text='Contacting server' or @text='Contacting Server']"
+Status["Contacting"] = "//android.view.View[@text='Contacting Server']"
 Status["Sync"] = "//android.view.View[@text='Synchronization in progress, please wait...']"
 Status["Information"] = "//android.view.View[@text='Information']"
 Status["Yes"]="//android.view.View[@text='Yes']"
-Status["Pleasewait"] = "//android.view.View[@text='Please wait' or @text='Please Wait']"
+Status["Pleasewait"] = "//android.view.View[@text='Please Wait']"
 Status["Syncstarted"] = "//android.view.View[@text='Sync started']"
+Status["EmergencyAlert"]="//android.view.View[@text='Emergency Alert']"
 Toast={}
 
 Toast["ConnUNavailable"] = "//android.view.View[@text='Connection is unavailable']"
@@ -125,9 +128,9 @@ PTXstatus = {}
 
 PTX = {}
 
-PTX["Sendtext"] = "//android.widget.Button[@text='Send text' and @clickable='true']"
-PTX["EnterText"] = "//android.widget.Button[@text='Enter text']"
-PTX["SendPTXMessage"] = "//android.widget.Button[@text='Send PTX Message']"
+PTX["Sendtext"] = "//android.view.View[@text='Send text']"
+PTX["EnterText"] = "//*[@class='android.widget.EditText']"#"//android.widget.Button[@text='Enter text']"
+PTX["SendPTXMessage"] = "//android.view.View[@text='Send PTX Message']"
 PTX["QuickTextMessage"] = "Quick Text Message"
 PTX["Alert"] = "//android.widget.Button[@text='Alert']"   #in PTX message window
 # Alert Elements
@@ -137,19 +140,19 @@ PTX["Information"] = "Information"
 
 
 # Location elements
-PTX["MyLocation"] = "//android.widget.Button[@text='My location:']" # in PTX window
+PTX["MyLocation"] = "//android.view.View[@text='My Location']" # in PTX window
 PTX["share"] = "//android.widget.Image[@text='share']"
 PTX["SelfLocation"] = "Self Location"
-PTX["Sendlocation"] = "//android.widget.Button[@text='Send location']" # in Call window
+PTX["Sendlocation"] = "//android.view.View[@text='Send location']" # in Call window
 
 # send image or video Elements
-PTX["Sendimageorvideo"] = "//android.widget.Button[@text='Send image or video']" #in PTX screen
+PTX["Sendimageorvideo"] = "//android.view.View[@text='Send image or video']" #in PTX screen
 PTX["Takephoto"] = "//android.view.View[@text='Take a photo']"
 PTX["VzwTakePhoto"] = "//android.view.View[@text='Take photo']"
 PTX["RecordVideo"] = "//android.view.View[@text='Record a Video']"
 PTX["VzwRecordVideo"] = "//android.view.View[@text='Record video']"
-PTX["ImageGallery"] = "//android.view.View[@text='Image gallery']"
-PTX["VideoGallery"] = "//android.view.View[@text='Video gallery']"
+PTX["ImageGallery"] = "//android.view.View[@text='Image Gallery']"
+PTX["VideoGallery"] = "//android.view.View[@text='Video Gallery']"
 PTX["photoShutter"] = "//android.widget.ImageView[@text='Camera shutter']"
 PTX["videoShutter"] = "//android.widget.ImageView[@text='Video shutter']"
 PTX["OK"] = "//android.widget.Button[contains(@resource-id,'com.lge.camera:id/btn_ok') or @text='OK']"
@@ -166,10 +169,10 @@ PTX["Search"] = "Search" # /sdcard/PTT
 
 
 # record Elements
-PTX["VOICEMESSAGE"] = "//android.widget.Button[@text='Voice message']" #in PTX window
+PTX["VOICEMESSAGE"] = "//android.view.View[@text='VOICE MESSAGE']" #in PTX window
 PTX["record"] = "//android.widget.Button[@text='record']"
 PTX["Sendingvoicemessage"] = "//android.widget.Button[@text='Sending voice message']"
-PTX["Sendvoicemessage"] = "//android.widget.Button[@text='Send voice message' and @clickable='true']" # in call screen
+PTX["Sendvoicemessage"] = "//android.view.View[@text='Send voice message' and @clickable='true']" # in call screen
 PTX["recordOK"] = "//android.widget.Button[@text='OK']"
 
 Call = {}
@@ -229,6 +232,9 @@ TGSC["calltopri3"] = "//android.view.View[@text='Scan_Pri_3_Group_Common']"
 broadcast = {}
 broadcast['group'] = "//android.view.View[contains(@text,'Group Type BroadCast')]"
 broadcast['brdcall'] = "//android.view.View[@text='Call']"
+
+emergency = {}
+emergency["declare"] = "//android.widget.Button[@text='Declare Emergency']"
 
 
 NWsimu = ['======== New Session', '=======>REGISTER', 'Expires: ', 'Kpoc: 1;', 'Presence icon type', '<KN_OPTYPE_ALL_REG_SUCCESS>']
